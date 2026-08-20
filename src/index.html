@@ -40,7 +40,9 @@
       --font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
       --font-size: 16px;
       --line-height: 1.6;
-      --content-max-width: none;
+      /* Documents read as a column, not as full-bleed text. Keeps the measure
+         near 80 characters on wide screens; narrow screens are unaffected. */
+      --content-max-width: 820px;
       --heading-weight: bold;
       --heading-align: left;
       --text-align: left;
@@ -216,14 +218,14 @@
       position: fixed;
       z-index: 200;
       max-width: 360px;
-      background: #1f1f1f;
-      color: #f5f5f5;
-      border: 1px solid rgba(255, 255, 255, 0.12);
-      border-radius: 8px;
-      padding: 10px;
-      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
-      font-size: 12px;
-      line-height: 1.4;
+      background: #fff;
+      color: #1a1a1a;
+      border: 1px solid rgba(0, 0, 0, 0.1);
+      border-radius: 12px;
+      padding: 12px;
+      box-shadow: 0 12px 32px rgba(0, 0, 0, 0.12);
+      font-size: 13px;
+      line-height: 1.45;
     }
 
     .mark-popover-backdrop {
@@ -269,14 +271,14 @@
     }
 
     .mark-popover-entry {
-      padding: 6px 8px;
-      background: rgba(255, 255, 255, 0.06);
-      border-radius: 6px;
+      padding: 8px 10px;
+      background: rgba(0, 0, 0, 0.04);
+      border-radius: 8px;
     }
 
     .mark-popover-meta {
       font-size: 11px;
-      color: rgba(255, 255, 255, 0.7);
+      color: rgba(0, 0, 0, 0.55);
       margin-bottom: 4px;
     }
 
@@ -287,16 +289,26 @@
 
     .mark-popover-textarea {
       width: 100%;
+      box-sizing: border-box;
       min-height: 64px;
       margin: 8px 0;
-      padding: 6px 8px;
-      border-radius: 6px;
-      border: 1px solid rgba(255, 255, 255, 0.2);
-      background: rgba(255, 255, 255, 0.08);
-      color: #f5f5f5;
+      padding: 8px 10px;
+      border-radius: 8px;
+      border: 1px solid rgba(0, 0, 0, 0.16);
+      background: #fff;
+      color: #1a1a1a;
       font-family: inherit;
-      font-size: 12px;
+      font-size: 13px;
       resize: vertical;
+    }
+
+    .mark-popover-textarea::placeholder {
+      color: rgba(0, 0, 0, 0.4);
+    }
+
+    .mark-popover-textarea:focus {
+      outline: none;
+      border-color: rgba(0, 0, 0, 0.4);
     }
 
     .mark-popover-actions {
@@ -319,23 +331,29 @@
       bottom: calc(env(safe-area-inset-bottom) - 2px);
       margin-top: 8px;
       padding-top: 8px;
-      background: linear-gradient(180deg, rgba(31, 31, 31, 0.02), rgba(31, 31, 31, 0.92) 32%);
+      background: linear-gradient(180deg, rgba(255, 255, 255, 0.02), rgba(255, 255, 255, 0.94) 32%);
     }
 
     .mark-popover-actions button {
-      border: none;
-      border-radius: 6px;
-      min-height: 44px;
-      min-width: 44px;
-      padding: 10px 14px;
-      background: rgba(255, 255, 255, 0.14);
-      color: #f5f5f5;
+      border: 1px solid rgba(0, 0, 0, 0.12);
+      border-radius: 8px;
+      min-height: 32px;
+      padding: 6px 14px;
+      background: rgba(0, 0, 0, 0.04);
+      color: #1a1a1a;
       cursor: pointer;
-      font-size: 12px;
+      font-size: 13px;
     }
 
     .mark-popover-actions button:hover {
-      background: rgba(255, 255, 255, 0.24);
+      background: rgba(0, 0, 0, 0.09);
+    }
+
+    /* Touch targets stay full size in the mobile sheet. */
+    .mark-popover.mark-popover-sheet .mark-popover-actions button {
+      min-height: 44px;
+      min-width: 44px;
+      padding: 10px 16px;
     }
 
     .mark-selection-bar {
