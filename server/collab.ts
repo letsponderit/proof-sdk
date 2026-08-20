@@ -9523,6 +9523,12 @@ function markProjectionStaleForLegacyReverseFlowBlock(
   return projectionMarkedStale;
 }
 
+// ponder patch (issue 5): live-registered docs only — loadedDocs residents linger
+// after disconnect and must not force the live mutation path.
+export function hasLiveCollabDoc(slug: string): boolean {
+  return getLiveHocuspocusDoc(slug) !== null;
+}
+
 function getLiveHocuspocusDoc(slug: string): Y.Doc | null {
   if (!slug) return null;
   const instance = hocuspocusInstance as any;

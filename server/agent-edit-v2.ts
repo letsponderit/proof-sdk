@@ -26,6 +26,7 @@ import {
   stripEphemeralCollabSpans,
   verifyCanonicalDocumentInLoadedCollab,
   verifyAuthoritativeMutationBaseStable,
+  hasLiveCollabDoc,
 } from './collab.js';
 import {
   getHeadlessMilkdownParser,
@@ -132,6 +133,9 @@ function getStrictLiveClientCount(slug: string): number {
 async function getStrictLiveClientCountWithGrace(slug: string): Promise<number> {
   let breakdown = getActiveCollabClientBreakdown(slug);
   if (!isHostedRewriteEnvironment()) return breakdown.exactEpochCount;
+  // ponder patch (issue 5): stale leases/grace can report clients after tabs
+  // close while no live doc is loaded; nothing to diverge from, use persisted base.
+  if (!hasLiveCollabDoc(slug)) return 0;
   if (breakdown.total === 0 || breakdown.exactEpochCount > 0) return breakdown.total;
 
   const timeoutMs = parsePositiveInt(process.env.HOSTED_LIVE_DOC_GRACE_MS, 1500);

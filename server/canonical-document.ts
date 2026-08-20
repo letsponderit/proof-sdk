@@ -46,6 +46,7 @@ import {
   quarantineOversizedYjsUpdate,
   registerCanonicalYDocPersistence,
   resolveAuthoritativeMutationBase,
+  hasLiveCollabDoc,
   stripEphemeralCollabSpans,
   type CanonicalReadableDocument,
 } from './collab.js';
@@ -811,6 +812,16 @@ export async function mutateCanonicalDocument(args: CanonicalMutationArgs): Prom
     collabClientBreakdown = await waitForHostedLiveLeaseMaterialization(args.slug);
   }
   let activeCollabClients = collabClientBreakdown.total;
+  // ponder patch (issue 5): on a single-replica self-host, leases with no
+  // exact-epoch client and no live-registered doc on THIS replica are stale —
+  // there is no other replica that could hold the live doc.
+  if (
+    (process.env.PROOF_SINGLE_REPLICA || '').trim() === '1'
+    && collabClientBreakdown.exactEpochCount === 0
+    && !hasLiveCollabDoc(args.slug)
+  ) {
+    activeCollabClients = 0;
+  }
   if (strictLiveDocRequested && activeCollabClients > 0 && !collabRuntimeEnabled) {
     return {
       ok: false,
@@ -822,7 +833,7 @@ export async function mutateCanonicalDocument(args: CanonicalMutationArgs): Prom
   }
   const hostedRemoteLiveLease = collabRuntimeEnabled
     && hostedRuntime
-    && collabClientBreakdown.total > 0
+    && activeCollabClients > 0
     && collabClientBreakdown.exactEpochCount === 0;
   if (strictLiveDocRequested && hostedRemoteLiveLease) {
     return {
@@ -843,9 +854,12 @@ export async function mutateCanonicalDocument(args: CanonicalMutationArgs): Prom
     );
   }
   let liveRequired = strictLiveDocRequested && activeCollabClients > 0;
+  // ponder patch (issue 5): bump the access epoch only when the room is truly
+  // empty — not when the single-replica bypass zeroed stale leases, which would
+  // invalidate a client that is mid-connect.
   const shouldBumpAccessEpoch = collabRuntimeEnabled
     && strictLiveDocRequested
-    && activeCollabClients === 0;
+    && collabClientBreakdown.total === 0;
   let initialBaseResolution = await resolveAuthoritativeMutationBase(args.slug, {
     liveRequired,
   });

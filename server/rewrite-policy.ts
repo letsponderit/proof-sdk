@@ -123,7 +123,9 @@ export function evaluateRewriteLiveClientGateWithOptions(
   const forceRequested = parseRewriteForceFlag(body);
   const runtimeEnvironment = getRewriteRuntimeEnvironment();
   const hostedRuntime = isHostedRewriteEnvironment(runtimeEnvironment);
-  const forceHonored = forceRequested && !hostedRuntime;
+  // ponder patch (issue 5): allow explicit force on self-hosted deployments.
+  const allowForceOverride = (process.env.PROOF_ALLOW_FORCE_REWRITE || '').trim() === '1';
+  const forceHonored = forceRequested && (!hostedRuntime || allowForceOverride);
   const forceIgnored = forceRequested && hostedRuntime;
   const breakdown = getActiveCollabClientBreakdown(slug);
   const connectedClients = breakdown.total;
